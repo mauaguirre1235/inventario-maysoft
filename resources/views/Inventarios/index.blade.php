@@ -71,7 +71,7 @@
                         <td class="px-2 py-1">{{ $inventario->correo_electronico }}</td>
                         <td class="px-2 py-1 text-center">
                             <div class="flex flex-col gap-1 items-center justify-center min-w-[90px]">
-                                <a href="{{ route('inventarios.show', $inventario) }}" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition w-full text-center">Ver</a>
+                                <button type="button" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition w-full text-center ver-equipo-btn" data-id="{{ $inventario->id }}">Ver</button>
                                 <a href="{{ route('inventarios.edit', $inventario) }}" class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition w-full text-center">Editar</a>
                                 <form action="{{ route('inventarios.destroy', $inventario) }}" method="POST" class="w-full">
                                     @csrf
@@ -80,6 +80,54 @@
                                 </form>
                             </div>
                         </td>
+                    <!-- Modal para mostrar detalles del equipo -->
+                    <div id="modalEquipo" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+                        <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] flex flex-col relative">
+                            <button id="cerrarModalEquipo" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+                            <div id="contenidoEquipo" class="overflow-y-auto p-8 flex-1">
+                                <!-- Aquí se cargan los datos por AJAX -->
+                                <div class="text-center text-gray-400">Cargando...</div>
+                            </div>
+                            <div class="p-4 border-t flex justify-end bg-white sticky bottom-0">
+                                <button id="cerrarModalEquipoBtn" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // Abrir modal y cargar datos por AJAX
+                        document.querySelectorAll('.ver-equipo-btn').forEach(function(btn) {
+                            btn.addEventListener('click', function() {
+                                const id = this.getAttribute('data-id');
+                                const modal = document.getElementById('modalEquipo');
+                                const contenido = document.getElementById('contenidoEquipo');
+                                modal.classList.remove('hidden');
+                                contenido.innerHTML = '<div class="text-center text-gray-400">Cargando...</div>';
+                                fetch(`/inventarios/${id}`)
+                                    .then(res => res.ok ? res.text() : Promise.reject('Error al cargar'))
+                                    .then(html => {
+                                        contenido.innerHTML = html;
+                                    })
+                                    .catch(() => {
+                                        contenido.innerHTML = '<div class="text-center text-red-500">Error al cargar los datos.</div>';
+                                    });
+                            });
+                        });
+                        // Cerrar modal (ícono)
+                        document.getElementById('cerrarModalEquipo').addEventListener('click', function() {
+                            document.getElementById('modalEquipo').classList.add('hidden');
+                        });
+                        // Cerrar modal (botón)
+                        document.getElementById('cerrarModalEquipoBtn').addEventListener('click', function() {
+                            document.getElementById('modalEquipo').classList.add('hidden');
+                        });
+                        // Cerrar modal al hacer click fuera del contenido
+                        document.getElementById('modalEquipo').addEventListener('click', function(e) {
+                            if (e.target === this) this.classList.add('hidden');
+                        });
+                    });
+                    </script>
                     </tr>
                 @endforeach
             </tbody>
