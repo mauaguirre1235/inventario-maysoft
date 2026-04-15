@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario Minimalista</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    
+   </head>
+<body class="bg-gray-50">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-56 bg-blue-900 text-white flex flex-col justify-between">
+            <div>
+                <div class="p-6 text-2xl font-bold">Inventario</div>
+                <nav class="space-y-2 px-6">
+                    <a href="#" class="block py-2 px-3 rounded bg-blue-700">Equipos</a>
+                    <a href="#" class="block py-2 px-3 rounded hover:bg-blue-800">Resguardos</a>
+                    <a href="#" class="block py-2 px-3 rounded hover:bg-blue-800">Usuarios</a>
+                    <hr class="my-2 border-blue-700">
+                    <a href="#" class="block py-2 px-3 rounded hover:bg-blue-800">Reportes</a>
+                    <a href="#" class="block py-2 px-3 rounded hover:bg-blue-800">Mantenimiento</a>
+                </nav>
+            </div>
+            <div class="p-6 text-xs text-blue-200">
+                <div>Administrador TI</div>
+                <div>admin@seguridad1</div>
+            </div>
+        </aside>
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold text-blue-900">Inventario de equipos</h1>
+                    <div class="text-gray-500 text-sm">650 equipos registrados · Actualizado hoy</div>
+                </div>
+                <button class="bg-blue-600 text-white px-5 py-2 rounded shadow hover:bg-blue-700 transition">+ Nuevo equipo</button>
+            </div>
+            <!-- Resumen -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white rounded shadow p-4 text-center">
+                    <div class="text-2xl font-bold text-blue-900">7</div>
+                    <div class="text-blue-600 text-xs font-semibold">Registrados</div>
+                </div>
+                <div class="bg-white rounded shadow p-4 text-center">
+                    <div class="text-2xl font-bold text-green-700">5</div>
+                    <div class="text-green-600 text-xs font-semibold">En servicio</div>
+                </div>
+                <div class="bg-white rounded shadow p-4 text-center">
+                    <div class="text-2xl font-bold text-yellow-700">1</div>
+                    <div class="text-yellow-600 text-xs font-semibold">En reparación</div>
+                </div>
+                <div class="bg-white rounded shadow p-4 text-center">
+                    <div class="text-2xl font-bold text-red-700">1</div>
+                    <div class="text-red-600 text-xs font-semibold">Inactivos</div>
+                </div>
+            </div>
+            <!-- Tabla -->
+            <div class="overflow-x-auto bg-white rounded shadow">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-blue-100">
+                        <tr>
+                            <th class="px-3 py-2">No. Resguardo</th>
+                            <th class="px-3 py-2">Tipo</th>
+                            <th class="px-3 py-2">Modelo CPU</th>
+                            <th class="px-3 py-2">N° Serie</th>
+                            <th class="px-3 py-2">Usuario</th>
+                            <th class="px-3 py-2">Área</th>
+                            <th class="px-3 py-2">Estado</th>
+                            <th class="px-3 py-2">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr>
+                            <td class="px-3 py-2">RSG-0001</td>
+                            <td class="px-3 py-2">Desktop</td>
+                            <td class="px-3 py-2">Dell OptiPlex 7090</td>
+                            <td class="px-3 py-2">SN4821JK</td>
+                            <td class="px-3 py-2">Laura Méndez García</td>
+                            <td class="px-3 py-2">Sistemas</td>
+                            <td class="px-3 py-2"><span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Activo</span></td>
+                            <td class="px-3 py-2 space-x-1">
+                                <button class="bg-gray-200 text-gray-800 px-2 py-1 rounded" title="Ver"><i class="fas fa-eye"></i></button>
+                                <button class="bg-yellow-500 text-white px-2 py-1 rounded" title="Editar"><i class="fas fa-edit"></i></button>
+                                <button class="bg-red-500 text-white px-2 py-1 rounded" title="Eliminar"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-3 py-2">RSG-0002</td>
+                            <td class="px-3 py-2">Laptop</td>
+                            <td class="px-3 py-2">HP EliteBook 840 G8</td>
+                            <td class="px-3 py-2">SN0934AB</td>
+                            <td class="px-3 py-2">Jorge Ramírez López</td>
+                            <td class="px-3 py-2">Contabilidad</td>
+                            <td class="px-3 py-2"><span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Activo</span></td>
+                            <td class="px-3 py-2 space-x-1">
+                                <button class="bg-gray-200 text-gray-800 px-2 py-1 rounded" title="Ver"><i class="fas fa-eye"></i></button>
+                                <button class="bg-yellow-500 text-white px-2 py-1 rounded" title="Editar"><i class="fas fa-edit"></i></button>
+                                <button class="bg-red-500 text-white px-2 py-1 rounded" title="Eliminar"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <!-- Más filas de ejemplo aquí -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
