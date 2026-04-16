@@ -17,6 +17,27 @@
         </div>
       
     </div>
+    <!-- Barra de búsqueda y filtros -->
+    <div class="bg-white rounded-t px-4 pt-4 pb-2 border border-b-0 flex flex-col md:flex-row md:items-center md:justify-between mb-0">
+        <div class="w-full md:w-1/2 flex items-center mb-2 md:mb-0">
+            <input type="text" id="busquedaInventario" name="busqueda" placeholder="Buscar por usuario, serie, modelo, área..." class="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        </div>
+        <div class="flex gap-2 w-full md:w-auto">
+            <select class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" name="tipo" id="filtroTipo">
+                <option value="">Todos los tipos</option>
+                <option value="Desktop">Desktop</option>
+                <option value="Laptop">Laptop</option>
+                <!-- Agrega más tipos si es necesario -->
+            </select>
+            <select class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" name="estado" id="filtroEstado">
+                <option value="">Todos los estados</option>
+                <option value="Activo">Activo</option>
+                <option value="En reparación">En reparación</option>
+                <option value="Dado de baja">Dado de baja</option>
+                <!-- Agrega más estados si es necesario -->
+            </select>
+        </div>
+    </div>
     <div class="overflow-x-auto bg-white rounded shadow">
         <table class="min-w-full divide-y divide-gray-200 text-xs font-mono whitespace-nowrap">
             <thead class="bg-gray-100">
