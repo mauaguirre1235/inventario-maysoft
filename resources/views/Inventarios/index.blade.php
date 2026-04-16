@@ -29,16 +29,43 @@
                 <option value="Laptop">Laptop</option>
                 <!-- Agrega más tipos si es necesario -->
             </select>
-            <select class="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" name="estado" id="filtroEstado">
-                <option value="">Todos los estados</option>
-                <option value="Activo">Activo</option>
-                <option value="En reparación">En reparación</option>
-                <option value="Dado de baja">Dado de baja</option>
-                <!-- Agrega más estados si es necesario -->
-            </select>
+           
         </div>
     </div>
     <div class="overflow-x-auto bg-white rounded shadow">
+        <!-- Script para filtrar la tabla en tiempo real usando AJAX -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputBusqueda = document.getElementById('busquedaInventario');
+            const filtroTipo = document.getElementById('filtroTipo');
+            const tablaBody = document.querySelector('table tbody');
+            let timeout = null;
+
+            function cargarTabla() {
+                const busqueda = inputBusqueda.value;
+                const tipo = filtroTipo.value;
+                const params = new URLSearchParams({
+                    busqueda: busqueda,
+                    tipo: tipo
+                });
+                fetch(`{{ route('inventarios.index') }}?${params.toString()}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.text())
+                .then(html => {
+                    tablaBody.innerHTML = html;
+                });
+            }
+
+            inputBusqueda.addEventListener('input', function() {
+                clearTimeout(timeout);
+                timeout = setTimeout(cargarTabla, 300);
+            });
+            filtroTipo.addEventListener('change', cargarTabla);
+        });
+        </script>
         <table class="min-w-full divide-y divide-gray-200 text-xs font-mono whitespace-nowrap">
             <thead class="bg-gray-100">
                 <tr>
@@ -66,92 +93,7 @@
                     <th class="px-2 py-1 text-center">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
-                @foreach($inventarios as $inventario)
-                    <tr>
-                        <td class="px-2 py-1">{{ $inventario->no_resguardo }}</td>
-                        <td class="px-2 py-1">{{ $inventario->id_equipo }}</td>
-                        <td class="px-2 py-1">{{ $inventario->tipo_equipo }}</td>
-                        <td class="px-2 py-1">{{ $inventario->modelo_cpu }}</td>
-                        <td class="px-2 py-1">{{ $inventario->no_serie_cpu }}</td>
-                        <td class="px-2 py-1">{{ $inventario->modelo_monitor }}</td>
-                        <td class="px-2 py-1">{{ $inventario->no_serie_monitor }}</td>
-                        <td class="px-2 py-1">{{ $inventario->no_serie_cargador }}</td>
-                        <td class="px-2 py-1">{{ $inventario->modelo_teclado }}</td>
-                        <td class="px-2 py-1">{{ $inventario->no_serie_teclado }}</td>
-                        <td class="px-2 py-1">{{ $inventario->modelo_mause }}</td>
-                        <td class="px-2 py-1">{{ $inventario->no_serie_mause }}</td>
-                        <td class="px-2 py-1">{{ $inventario->modelo_nobreak }}</td>
-                        <td class="px-2 py-1">{{ $inventario->no_serie_nobreak }}</td>
-                        <td class="px-2 py-1">{{ $inventario->usuario }}</td>
-                        <td class="px-2 py-1">{{ $inventario->no_empleado }}</td>
-                        <td class="px-2 py-1">{{ $inventario->puesto }}</td>
-                        <td class="px-2 py-1">{{ $inventario->area_asignada }}</td>
-                        <td class="px-2 py-1">{{ $inventario->unidad_administrativa }}</td>
-                        <td class="px-2 py-1">{{ $inventario->no_contacto }}</td>
-                        <td class="px-2 py-1">{{ $inventario->correo_electronico }}</td>
-                        <td class="px-2 py-1 text-center">
-                            <div class="flex flex-col gap-1 items-center justify-center min-w-[90px]">
-                                <button type="button" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition w-full text-center ver-equipo-btn" data-id="{{ $inventario->id }}">Ver</button>
-                                <a href="{{ route('inventarios.edit', $inventario) }}" class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition w-full text-center">Editar</a>
-                                <form action="{{ route('inventarios.destroy', $inventario) }}" method="POST" class="w-full">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition w-full text-center" onclick="return confirm('¿Seguro que deseas eliminar este inventario?')">Eliminar</button>
-                                </form>
-                            </div>
-                        </td>
-                    <!-- Modal para mostrar detalles del equipo -->
-                    <div id="modalEquipo" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
-                        <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] flex flex-col relative">
-                            <button id="cerrarModalEquipo" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
-                            <div id="contenidoEquipo" class="overflow-y-auto p-8 flex-1">
-                                <!-- Aquí se cargan los datos por AJAX -->
-                                <div class="text-center text-gray-400">Cargando...</div>
-                            </div>
-                            <div class="p-4 border-t flex justify-end bg-white sticky bottom-0">
-                                <button id="cerrarModalEquipoBtn" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Cerrar</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <script>
-                    document.addEventListener('DOMContentLoaded', function() {
-                        // Abrir modal y cargar datos por AJAX
-                        document.querySelectorAll('.ver-equipo-btn').forEach(function(btn) {
-                            btn.addEventListener('click', function() {
-                                const id = this.getAttribute('data-id');
-                                const modal = document.getElementById('modalEquipo');
-                                const contenido = document.getElementById('contenidoEquipo');
-                                modal.classList.remove('hidden');
-                                contenido.innerHTML = '<div class="text-center text-gray-400">Cargando...</div>';
-                                fetch(`/inventarios/${id}`)
-                                    .then(res => res.ok ? res.text() : Promise.reject('Error al cargar'))
-                                    .then(html => {
-                                        contenido.innerHTML = html;
-                                    })
-                                    .catch(() => {
-                                        contenido.innerHTML = '<div class="text-center text-red-500">Error al cargar los datos.</div>';
-                                    });
-                            });
-                        });
-                        // Cerrar modal (ícono)
-                        document.getElementById('cerrarModalEquipo').addEventListener('click', function() {
-                            document.getElementById('modalEquipo').classList.add('hidden');
-                        });
-                        // Cerrar modal (botón)
-                        document.getElementById('cerrarModalEquipoBtn').addEventListener('click', function() {
-                            document.getElementById('modalEquipo').classList.add('hidden');
-                        });
-                        // Cerrar modal al hacer click fuera del contenido
-                        document.getElementById('modalEquipo').addEventListener('click', function(e) {
-                            if (e.target === this) this.classList.add('hidden');
-                        });
-                    });
-                    </script>
-                    </tr>
-                @endforeach
-            </tbody>
+            @include('Inventarios.partials.tabla')
         </table>
     </div>
 </div>

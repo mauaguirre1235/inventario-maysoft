@@ -12,8 +12,38 @@ class InventarioController extends Controller
      */
     public function index()
     {
-        $inventarios = Inventario::all();
-        return view('Inventarios.index', compact('inventarios'));  
+        $query = Inventario::query();
+        // Filtro de búsqueda general
+        if (request('busqueda')) {
+            $busqueda = request('busqueda');
+            $query->where(function($q) use ($busqueda) {
+                $q->where('no_resguardo', 'like', "%$busqueda%")
+                  ->orWhere('id_equipo', 'like', "%$busqueda%")
+                  ->orWhere('tipo_equipo', 'like', "%$busqueda%")
+                  ->orWhere('modelo_cpu', 'like', "%$busqueda%")
+                  ->orWhere('no_serie_cpu', 'like', "%$busqueda%")
+                  ->orWhere('modelo_monitor', 'like', "%$busqueda%")
+                  ->orWhere('no_serie_monitor', 'like', "%$busqueda%")
+                  ->orWhere('usuario', 'like', "%$busqueda%")
+                  ->orWhere('area_asignada', 'like', "%$busqueda%")
+                  ->orWhere('unidad_administrativa', 'like', "%$busqueda%")
+                  ->orWhere('correo_electronico', 'like', "%$busqueda%")
+                  ;
+            });
+        }
+        // Filtro por tipo
+        if (request('tipo')) {
+            $query->where('tipo_equipo', request('tipo'));
+        }
+        // Filtro por estado (si lo agregas en el futuro)
+        // if (request('estado')) {
+        //     $query->where('estado', request('estado'));
+        // }
+        $inventarios = $query->paginate(20);
+        if (request()->ajax()) {
+            return view('Inventarios.partials.tabla', compact('inventarios'))->render();
+        }
+        return view('Inventarios.index', compact('inventarios'));
     }
 
     /**
