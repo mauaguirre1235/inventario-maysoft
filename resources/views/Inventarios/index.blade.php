@@ -33,39 +33,76 @@
         </div>
     </div>
     <div class="overflow-x-auto bg-white rounded shadow">
-        <!-- Script para filtrar la tabla en tiempo real usando AJAX -->
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const inputBusqueda = document.getElementById('busquedaInventario');
-            const filtroTipo = document.getElementById('filtroTipo');
-            const tablaBody = document.querySelector('table tbody');
-            let timeout = null;
-
-            function cargarTabla() {
-                const busqueda = inputBusqueda.value;
-                const tipo = filtroTipo.value;
-                const params = new URLSearchParams({
-                    busqueda: busqueda,
-                    tipo: tipo
-                });
-                fetch(`{{ route('inventarios.index') }}?${params.toString()}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(res => res.text())
-                .then(html => {
+                <!-- Modal para mostrar detalles del equipo -->
+                <div id="modalEquipo" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+                    <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] flex flex-col relative">
+                        <button id="cerrarModalEquipo" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+                        <div id="contenidoEquipo" class="overflow-y-auto p-8 flex-1">
+                            <!-- Aquí se cargan los datos por AJAX -->
+                            <div class="text-center text-gray-400">Cargando...</div>
+                        </div>
+                        <div class="p-4 border-t flex justify-end bg-white sticky bottom-0">
+                            <button id="cerrarModalEquipoBtn" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Script para abrir/cerrar modal y cargar detalles por AJAX -->
+                <script>
+                function inicializarModalEquipo() {
+                    document.querySelectorAll('.ver-equipo-btn').forEach(function(btn) {
+                        btn.onclick = function() {
+                            const id = this.getAttribute('data-id');
+                            const modal = document.getElementById('modalEquipo');
+                            const contenido = document.getElementById('contenidoEquipo');
+                            modal.classList.remove('hidden');
+                            contenido.innerHTML = '<div class="text-center text-gray-400">Cargando...</div>';
+                            fetch(`/inventarios/${id}`)
+                                .then(res => res.ok ? res.text() : Promise.reject('Error al cargar'))
+                                .then(html => {
+                                    contenido.innerHTML = html;
+                                })
+                                .catch(() => {
+                                    contenido.innerHTML = '<div class="text-center text-red-500">Error al cargar los datos.</div>';
+                                });
+                        };
+                    });
+                    document.getElementById('cerrarModalEquipo').onclick = function() {
+                        document.getElementById('modalEquipo').classList.add('hidden');
+                    };
+                    document.getElementById('cerrarModalEquipoBtn').onclick = function() {
+                        document.getElementById('modalEquipo').classList.add('hidden');
+                    };
+                    document.getElementById('modalEquipo').addEventListener('click', function(e) {
+                        if (e.target === this) this.classList.add('hidden');
+                    });
+                }
+                function recargarTablaBody(html) {
+                    const tablaBody = document.querySelector('table tbody');
                     tablaBody.innerHTML = html;
+                    inicializarModalEquipo();
+                }
+                document.addEventListener('DOMContentLoaded', function() {
+                    inicializarModalEquipo();
+                    const inputBusqueda = document.getElementById('busquedaInventario');
+                    const filtroTipo = document.getElementById('filtroTipo');
+                    let timeout = null;
+                    function cargarTabla() {
+                        const busqueda = inputBusqueda.value;
+                        const tipo = filtroTipo.value;
+                        const params = new URLSearchParams({ busqueda, tipo });
+                        fetch(`{{ route('inventarios.index') }}?${params.toString()}`, {
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                        .then(res => res.text())
+                        .then(recargarTablaBody);
+                    }
+                    inputBusqueda.addEventListener('input', function() {
+                        clearTimeout(timeout);
+                        timeout = setTimeout(cargarTabla, 300);
+                    });
+                    filtroTipo.addEventListener('change', cargarTabla);
                 });
-            }
-
-            inputBusqueda.addEventListener('input', function() {
-                clearTimeout(timeout);
-                timeout = setTimeout(cargarTabla, 300);
-            });
-            filtroTipo.addEventListener('change', cargarTabla);
-        });
-        </script>
+                </script>
         <table class="min-w-full divide-y divide-gray-200 text-xs font-mono whitespace-nowrap">
             <thead class="bg-gray-100">
                 <tr>

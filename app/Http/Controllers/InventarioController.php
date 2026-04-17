@@ -46,14 +46,25 @@ class InventarioController extends Controller
         return view('Inventarios.index', compact('inventarios'));
     }
 
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(Inventario $inventario)
+    {
+        if (request()->ajax()) {
+            return view('Inventarios.partials.show', compact('inventario'))->render();
+        }
+        return view('Inventarios.show', compact('inventario'));
+    }
+
     /**
      * Show the form for creating a new resource.
      */
-   
-        public function create()
-        {
-            return view('Inventarios.create');
-        }
+    public function create()
+    {
+        return view('Inventarios.create');
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -91,15 +102,6 @@ class InventarioController extends Controller
             return redirect()->route('inventarios.index')->with('success', 'Inventario creado correctamente.');
         }
 
-    /**
-     * Display the specified resource.
-     */
-   
-        public function show($id)
-        {
-            $inventario = Inventario::findOrFail($id);
-            return view('Inventarios.show', compact('inventario'));
-        }
 
     /**
      * Show the form for editing the specified resource.
