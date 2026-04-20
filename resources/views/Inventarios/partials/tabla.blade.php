@@ -25,7 +25,7 @@
             <td class="px-2 py-1 text-center">
                 <div class="flex flex-col gap-1 items-center justify-center min-w-[90px]">
                     <button type="button" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition w-full text-center ver-equipo-btn" data-id="{{ $inventario->id }}">Ver</button>
-                    <a href="{{ route('inventarios.edit', $inventario) }}" class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition w-full text-center">Editar</a>
+                   <button type="button" class="bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition w-full text-center editar-equipo-btn" data-id="{{ $inventario->id }}">Editar</button>
                     <form action="{{ route('inventarios.destroy', $inventario) }}" method="POST" class="w-full">
                         @csrf
                         @method('DELETE')

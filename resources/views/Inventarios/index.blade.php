@@ -60,6 +60,7 @@
             @include('Inventarios.partials.tabla')
         </table>
     </div>
+
     <!-- Modal para agregar nuevo equipo -->
     <div id="modalNuevoEquipo" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
         <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] flex flex-col relative">
@@ -77,6 +78,7 @@
             </div>
         </div>
     </div>
+
     <!-- Modal para mostrar detalles del equipo -->
     <div id="modalEquipo" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
         <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] flex flex-col relative">
@@ -89,6 +91,20 @@
             </div>
         </div>
     </div>
+
+        <!-- Modal para editar un equipo -->
+<div id="modalEditarEquipo" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+    <div class="bg-white rounded-lg shadow-lg max-w-3xl w-full max-h-[90vh] flex flex-col relative">
+        <button id="cerrarModalEditarEquipo" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+        <div id="contenidoEditarEquipo" class="overflow-y-auto p-8 flex-1">
+            <!-- Aquí se cargará el formulario de edición -->
+        </div>
+        <div class="p-4 border-t flex justify-end bg-white sticky bottom-0">
+            <button id="cerrarModalEditarEquipoBtn" class="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 </div>
 <script>
 function inicializarModalNuevoEquipo() {
@@ -152,6 +168,7 @@ function inicializarModalEquipo() {
 document.addEventListener('DOMContentLoaded', function() {
     inicializarModalNuevoEquipo();
     inicializarModalEquipo();
+    inicializarModalEditarEquipo(); 
     // --- Filtro y búsqueda AJAX ---
     const busqueda = document.getElementById('busquedaInventario');
     const filtroTipo = document.getElementById('filtroTipo');
@@ -173,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 // Re-inicializa eventos de botones "Ver"
                 inicializarModalEquipo();
+                inicializarModalEditarEquipo(); 
             });
     }
     if (busqueda) busqueda.addEventListener('input', function() {
@@ -182,5 +200,46 @@ document.addEventListener('DOMContentLoaded', function() {
         cargarTabla();
     });
 });
+
+function inicializarModalEditarEquipo(){
+    document.querySelectorAll('.editar-equipo-btn').forEach(function(btn) {
+          btn.onclick = function(){
+            const id = this.getAttribute('data-id');
+            const modal = document.getElementById('modalEditarEquipo'); 
+            const contenido = document.getElementById('contenidoEditarEquipo');
+            modal.classList.remove('hidden'); 
+            document.body.classList.add('overflow-hidden');
+            contenido.innerHTML = '<div class="text-center text-gray-400">Cargando...</div>';
+           fetch(`/inventarios/${id}/edit`)
+    .then(res => res.ok ? res.text() : Promise.reject('Error al cargar'))
+    .then(html => {
+        contenido.innerHTML = html; 
+    })
+    .catch(() => {
+        contenido.innerHTML = '<div class="text-center text-red-500">Error al cargar los datos.</div>';
+    });
+
+          }; 
+
+    }); 
+
+ // Cerrar modal igual que los otros
+    document.getElementById('cerrarModalEditarEquipo').onclick = function() {
+        document.getElementById('modalEditarEquipo').classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    };
+    document.getElementById('cerrarModalEditarEquipoBtn').onclick = function() {
+        document.getElementById('modalEditarEquipo').classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+    };
+    document.getElementById('modalEditarEquipo').addEventListener('click', function(e) {
+        if (e.target === this) {
+            this.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+    });
+}
+
+
 </script>
 @endsection

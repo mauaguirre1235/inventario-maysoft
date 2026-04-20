@@ -110,6 +110,9 @@ class InventarioController extends Controller
         public function edit($id)
         {
             $inventario = Inventario::findOrFail($id);
+            if (request()->ajax()) {
+                return view('Inventarios.edit', compact('inventario'));
+            }
             return view('Inventarios.edit', compact('inventario'));
         }
 
