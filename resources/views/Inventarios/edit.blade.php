@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.modal')
 
 @section('content')
 <h1>Editar Inventario</h1>

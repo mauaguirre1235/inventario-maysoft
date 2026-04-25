@@ -1,3 +1,4 @@
+
 <div class="max-w-2xl mx-auto bg-white rounded shadow p-8">
     <h2 class="text-xl font-bold mb-6">Editar Inventario</h2>
     <form action="{{ route('inventarios.update', $inventario) }}" method="POST" id="formEditarInventario">

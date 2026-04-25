@@ -107,6 +107,65 @@
 
 </div>
 <script>
+// Muestra/oculta campos según tipo de equipo, con soporte de contenedor para evitar conflictos de IDs
+function toggleFieldsEquipo(tipo, container) {
+    container = container || document;
+    function q(id) { return container.querySelector('#' + id); }
+
+    const cargadorField      = q('cargador_field');
+    const inputCargador      = q('input_no_serie_cargador');
+    const tecladoDiv         = q('teclado_fields');
+    const tecladoSerieDiv    = q('teclado_serie_fields');
+    const mauseDiv           = q('mause_fields');
+    const mauseSerieDiv      = q('mause_serie_fields');
+    const nobreakDiv         = q('nobreak_fields');
+    const nobreakSerieDiv    = q('nobreak_serie_fields');
+    const inputTeclado       = q('input_modelo_teclado');
+    const inputTecladoSerie  = q('input_no_serie_teclado');
+    const inputMause         = q('input_modelo_mause');
+    const inputMauseSerie    = q('input_no_serie_mause');
+    const inputNobreak       = q('input_modelo_nobreak');
+    const inputNobreakSerie  = q('input_no_serie_nobreak');
+    const labelCpu           = q('label_modelo_cpu');
+    const labelSerieCpu      = q('label_no_serie_cpu');
+
+    if (tipo === 'Laptop') {
+        if (cargadorField)   cargadorField.style.display = '';
+        if (inputCargador)   inputCargador.disabled = false;
+        if (tecladoDiv)      { tecladoDiv.style.display = 'none';      }
+        if (tecladoSerieDiv) { tecladoSerieDiv.style.display = 'none'; }
+        if (mauseDiv)        { mauseDiv.style.display = 'none';        }
+        if (mauseSerieDiv)   { mauseSerieDiv.style.display = 'none';   }
+        if (nobreakDiv)      { nobreakDiv.style.display = 'none';      }
+        if (nobreakSerieDiv) { nobreakSerieDiv.style.display = 'none'; }
+        if (inputTeclado)    inputTeclado.disabled = true;
+        if (inputTecladoSerie) inputTecladoSerie.disabled = true;
+        if (inputMause)      inputMause.disabled = true;
+        if (inputMauseSerie) inputMauseSerie.disabled = true;
+        if (inputNobreak)    inputNobreak.disabled = true;
+        if (inputNobreakSerie) inputNobreakSerie.disabled = true;
+        if (labelCpu)        labelCpu.textContent = 'Modelo de laptop';
+        if (labelSerieCpu)   labelSerieCpu.textContent = 'No. serie de laptop';
+    } else {
+        if (cargadorField)   cargadorField.style.display = 'none';
+        if (inputCargador)   inputCargador.disabled = true;
+        if (tecladoDiv)      { tecladoDiv.style.display = '';      }
+        if (tecladoSerieDiv) { tecladoSerieDiv.style.display = ''; }
+        if (mauseDiv)        { mauseDiv.style.display = '';        }
+        if (mauseSerieDiv)   { mauseSerieDiv.style.display = '';   }
+        if (nobreakDiv)      { nobreakDiv.style.display = '';      }
+        if (nobreakSerieDiv) { nobreakSerieDiv.style.display = ''; }
+        if (inputTeclado)    inputTeclado.disabled = false;
+        if (inputTecladoSerie) inputTecladoSerie.disabled = false;
+        if (inputMause)      inputMause.disabled = false;
+        if (inputMauseSerie) inputMauseSerie.disabled = false;
+        if (inputNobreak)    inputNobreak.disabled = false;
+        if (inputNobreakSerie) inputNobreakSerie.disabled = false;
+        if (labelCpu)        labelCpu.textContent = 'Modelo CPU';
+        if (labelSerieCpu)   labelSerieCpu.textContent = 'No° de Serie CPU';
+    }
+}
+
 function inicializarModalNuevoEquipo() {
     const abrirBtn = document.getElementById('abrirModalNuevoEquipo');
     const modal = document.getElementById('modalNuevoEquipo');
@@ -168,7 +227,18 @@ function inicializarModalEquipo() {
 document.addEventListener('DOMContentLoaded', function() {
     inicializarModalNuevoEquipo();
     inicializarModalEquipo();
-    inicializarModalEditarEquipo(); 
+    inicializarModalEditarEquipo();
+    // Inicializar campos dinámicos del formulario de NUEVO equipo (incluido vía Blade, no AJAX)
+    const nuevoModalContainer = document.getElementById('modalNuevoEquipo');
+    if (nuevoModalContainer) {
+        const tipoSelect = nuevoModalContainer.querySelector('#tipo_equipo');
+        if (tipoSelect) {
+            tipoSelect.addEventListener('change', function() {
+                toggleFieldsEquipo(this.value, nuevoModalContainer);
+            });
+            toggleFieldsEquipo(tipoSelect.value, nuevoModalContainer);
+        }
+    } 
     // --- Filtro y búsqueda AJAX ---
     const busqueda = document.getElementById('busquedaInventario');
     const filtroTipo = document.getElementById('filtroTipo');
@@ -212,9 +282,20 @@ function inicializarModalEditarEquipo(){
             contenido.innerHTML = '<div class="text-center text-gray-400">Cargando...</div>';
            fetch(`/inventarios/${id}/edit`)
     .then(res => res.ok ? res.text() : Promise.reject('Error al cargar'))
-    .then(html => {
-        contenido.innerHTML = html; 
-    })
+            .then(html => {
+                contenido.innerHTML = html;
+                // Leer tipo desde el hidden input (el select viene disabled en edición)
+                const hiddenTipo = contenido.querySelector('input[type="hidden"][name="tipo_equipo"]');
+                const selectTipo = contenido.querySelector('#tipo_equipo');
+                const tipo = hiddenTipo ? hiddenTipo.value : (selectTipo ? selectTipo.value : '');
+                toggleFieldsEquipo(tipo, contenido);
+                // Para el formulario nuevo: también añadir listener al select (no disabled)
+                if (selectTipo && !selectTipo.disabled) {
+                    selectTipo.addEventListener('change', function() {
+                        toggleFieldsEquipo(this.value, contenido);
+                    });
+                }
+            })
     .catch(() => {
         contenido.innerHTML = '<div class="text-center text-red-500">Error al cargar los datos.</div>';
     });
