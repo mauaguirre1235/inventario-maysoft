@@ -321,6 +321,92 @@ function inicializarModalEditarEquipo(){
     });
 }
 
+// --- AJAX para actualizar inventario desde el modal de edición ---
+function inicializarEnvioAjaxEditarEquipo() {
+    const modal = document.getElementById('modalEditarEquipo');
+    if (!modal) return;
+    modal.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form.tagName !== 'FORM') return;
+        e.preventDefault();
+        const formData = new FormData(form);
+        const action = form.getAttribute('action');
+        fetch(action, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+            },
+            body: formData
+        })
+        .then(async res => {
+            const contentType = res.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                const data = await res.json();
+                if (data && data.success) {
+                    modal.classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                    cargarTabla();
+                } else {
+                    alert('Error al actualizar el inventario.');
+                }
+            } else {
+                // Es HTML: probablemente errores de validación, reemplaza el contenido del modal
+                const html = await res.text();
+                document.getElementById('contenidoEditarEquipo').innerHTML = html;
+            }
+        })
+        .catch(() => {
+            alert('Error al actualizar el inventario.');
+        });
+    });
+}
+
+// Llama esta función después de inicializarModalEditarEquipo
+// --- cargarTabla en scope global para que pueda llamarse desde cualquier función ---
+function cargarTabla() {
+    const busqueda = document.getElementById('busquedaInventario');
+    const filtroTipo = document.getElementById('filtroTipo');
+    const params = new URLSearchParams();
+    if (busqueda && busqueda.value) params.append('busqueda', busqueda.value);
+    if (filtroTipo && filtroTipo.value) params.append('tipo', filtroTipo.value);
+    fetch(`/inventarios?${params.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(res => res.text())
+        .then(html => {
+            const tabla = document.querySelector('table');
+            const viejoTbody = tabla ? tabla.querySelector('tbody') : null;
+            const tempTable = document.createElement('table');
+            tempTable.innerHTML = html;
+            const nuevoTbody = tempTable.querySelector('tbody');
+            if (nuevoTbody && viejoTbody) {
+                viejoTbody.replaceWith(nuevoTbody);
+            }
+            inicializarModalEquipo();
+            inicializarModalEditarEquipo();
+        });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    inicializarModalNuevoEquipo();
+    inicializarModalEquipo();
+    inicializarModalEditarEquipo();
+    inicializarEnvioAjaxEditarEquipo();
+    // Inicializar campos dinámicos del formulario de NUEVO equipo (incluido vía Blade, no AJAX)
+    const nuevoModalContainer = document.getElementById('modalNuevoEquipo');
+    if (nuevoModalContainer) {
+        const tipoSelect = nuevoModalContainer.querySelector('#tipo_equipo');
+        if (tipoSelect) {
+            tipoSelect.addEventListener('change', function() {
+                toggleFieldsEquipo(this.value, nuevoModalContainer);
+            });
+            toggleFieldsEquipo(tipoSelect.value, nuevoModalContainer);
+        }
+    }
+    const busqueda = document.getElementById('busquedaInventario');
+    const filtroTipo = document.getElementById('filtroTipo');
+    if (busqueda) busqueda.addEventListener('input', cargarTabla);
+    if (filtroTipo) filtroTipo.addEventListener('change', cargarTabla);
+});
 
 </script>
 @endsection

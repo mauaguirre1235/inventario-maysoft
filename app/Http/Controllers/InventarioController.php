@@ -148,8 +148,13 @@ class InventarioController extends Controller
                 'no_resguardo.unique' => 'El número de resguardo ya existe.',
                 'id_equipo.unique' => 'El ID del equipo ya existe.'
             ]);
+
             $inventario = Inventario::findOrFail($id);
             $inventario->update($data);
+
+            if ($request->ajax()) {
+                return response()->json(['success' => true]);
+            }
             return redirect()->route('inventarios.index')->with('success', 'Inventario actualizado correctamente.');
         }
 
