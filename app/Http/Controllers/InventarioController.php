@@ -123,8 +123,8 @@ class InventarioController extends Controller
         public function update(Request $request, $id)
         {
             $data = $request->validate([
-                'no_resguardo' => 'required|unique:inventarios,no_resguardo',
-                'id_equipo' => 'required|unique:inventarios,id_equipo',
+                'no_resguardo' => 'required|unique:inventarios,no_resguardo,' . $id . ',id',
+                'id_equipo' => 'required|unique:inventarios,id_equipo,' . $id . ',id',
                 'tipo_equipo' => 'required',
                 'modelo_cpu' => 'nullable',
                 'no_serie_cpu' => 'nullable',
